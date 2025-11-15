@@ -1,0 +1,29 @@
+{
+  "donorCountProbabilities": [
+    1,
+    0,
+    0,
+    0
+  ],
+  "patientBtDistribution": {
+    "probO": 0.4,
+    "probA": 0.4,
+    "probB": 0.1,
+    "probAB": 0.1
+  },
+  "probSpousal": 0,
+  "probFemale": 0,
+  "probSpousalPraCompatibility": 0,
+  "numberOfInstances": 10,
+  "patientsPerInstance": 1000,
+  "proportionAltruistic": 0.05,
+  "fileFormat": "xml",
+  "donorBtDistribution": {
+    "probO": 0.4,
+    "probA": 0.4,
+    "probB": 0.1,
+    "probAB": 0.1
+  },
+  "praBandsString": "0.2 0.11\n0.8 0.89",
+  "fullDetails": true
+}
