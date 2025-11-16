@@ -23,8 +23,8 @@ This repository contains the experimental framework used to evaluate core-stable
 1. **Environment:** Python 3.10+, PuLP, NumPy, pandas, matplotlib. GUROBI is supported (if licensed) but CBC is used by default.
 2. **Data prep:** XML instances live under `instances/` (small) and `instances_large/` (paper-scale). `instance_analysis.py` extracts donor/recipient meta features, including altruist adjacency lists.
 3. **Algorithms:** Implemented in `KEP_functions.py`:
-   - `core_heuristic` (weak core), `strong_core_heuristic` (strong core) - cut-adding heuristics that extend the base maximum cycle packing, adding altruists only when IPs become infeasible.
-   - `core_tu_simple` - TU-core IP with limited altruist augmentation (capped at 5% of vertices), coalition constraints, and lexicographic penalty on altruist edges.
+   - `core_heuristic` (weak core), `strong_core_heuristic` (strong core), 'tu_core_simple' (TU core) - cut-adding heuristics that extend the base maximum cycle packing, adding altruists only when IPs become infeasible. Cuts reflect minimum utility constraints for previous blocking coalitions.
+   - `core_tu_simple_old` - TU-core IP with limited altruist augmentation (capped at 5% of vertices), coalition constraints, and lexicographic penalty on altruist edges.
    - `lexicographic_core_search` - four-tier optimisation (max transplants -> max cycles -> max blood-type matches -> maximise hard-to-match vertices) with weak-core verification.
 4. **Paper experiments:** Execute `paper_simulations.ipynb`. It:
    - loops across player counts `[5, 10, 15, 20, 30, 50]`, cohort sizes `[100, 200, 400, max]`, and cycle caps (`Delta=2,3`);
