@@ -6,7 +6,7 @@ This repository contains the experimental framework used to evaluate core-stable
 
 - `KEP_functions.py` - main library implementing:
   - compatibility graph construction and cycle enumeration;
-  - core verification, strong/weak-core heuristics with cut generation;
+  - core verification, strong/weak/TU-core heuristics with cut generation;
   - TU-core formulation with altruist pre-allocation;
   - lexicographic weak-core optimisation with blood-type and hardness features;
   - plotting helpers and solver utilities (PuLP, GUROBI/CBC backends).
@@ -27,7 +27,7 @@ This repository contains the experimental framework used to evaluate core-stable
    - `core_tu_simple_old` - TU-core IP with limited altruist augmentation (capped at 5% of vertices), coalition constraints, and lexicographic penalty on altruist edges.
    - `lexicographic_core_search` - four-tier optimisation (max transplants -> max cycles -> max blood-type matches -> maximise hard-to-match vertices) with weak-core verification.
 4. **Paper experiments:** Execute `paper_simulations.ipynb`. It:
-   - loops across player counts `[5, 10, 15, 20, 30, 50]`, cohort sizes `[100, 200, 400, max]`, and cycle caps (`Delta=2,3`);
+   - loops across player counts `[5, 10, 15, 20, 30, 80]`, cohort sizes `[100, 200, 500, 1000]`, and cycle caps (`Delta=2,3`);
    - runs TU, strong, weak, and lexicographic algorithms, reusing early "zero altruist'' results to skip redundant computations;
    - aggregates outcomes in `figures/paper_simulations_results.csv`, builds summary tables, and renders PNG plots under `figures/`.
 
