@@ -1385,6 +1385,8 @@ def _compute_opt_for_coalition(
     return int(pulp.value(problem.objective)) if problem.objective is not None else 0
 
 
+
+
 def core_tu_simple(
     vertices: List[VertexId],
     adj_out: AdjOut,
@@ -1398,20 +1400,25 @@ def core_tu_simple(
     altruist_edges: Optional[Mapping[VertexId, Sequence[VertexId]]] = None,
 ) -> Dict[str, object]:
     """
-    TU-core algorithm with altruists present from the start.
-    Objective: lexicographically maximise real patients, then minimise altruist-edge usage
-    via big-M weighting. Utilities exclude altruists. Coalition constraints ensure stability
-    for all coalitions of size ≤ max_coal_size.
+    TU-core algorithm that incrementally augments the instance with altruists.
+    We first solve the max matching IP without altruists to obtain the baseline
+    coverage. Coalition cuts (size ≤ max_coal_size) are added alongside this
+    coverage constraint. If the resulting polytope is infeasible, we add one
+    randomly-chosen altruist (if available) and try again, reusing the same cuts.
     """
     if Delta not in (2, 3):
         raise ValueError("Delta must be 2 or 3")
 
     rng = rng or np.random.default_rng()
+    altruist_edges = altruist_edges or {}
 
-    # Stage A: Baseline without altruists → compute K (max real patients)
+    # Baseline solve without altruists to determine minimum real transplants.
     base_cycle_db = enumerate_cycles(vertices, adj_out, partition, Delta)
     base_solution, base_status = _solve_cycle_ip(base_cycle_db, Delta, partition, solver)
-    if base_status not in (pulp.LpStatusOptimal, pulp.LpStatusNotSolved):
+    if not (
+        base_status == pulp.LpStatusOptimal
+        or (base_status == pulp.LpStatusNotSolved and base_solution)
+    ):
         return {
             "solution": set(),
             "in_core": False,
@@ -1421,82 +1428,152 @@ def core_tu_simple(
             "objective_altruist_penalty": 0,
             "num_coalitions": 0,
             "max_coal_size": max_coal_size,
-            "altruists_present": bool(altruist_edges),
-            "M": 0,
+            "altruists_present": False,
+            "M": len(set(vertices)),
             "altruists_used": 0,
         }
-    K = sum(base_cycle_db.cycles[cid].length for cid in base_solution)
+    min_real_transplants = sum(
+        base_cycle_db.cycles[cid].non_altruist_count for cid in base_solution
+    )
 
-    # Stage B: Build full graph with at most 5% altruists and enforce coalition constraints
-    limited_altruists = {}
-    if altruist_edges:
-        max_allowed = int(math.floor(0.05 * len(vertices)))
-        if max_allowed > 0:
-            selected_keys = sorted(altruist_edges.keys())[:max_allowed]
-            limited_altruists = {k: altruist_edges[k] for k in selected_keys}
-    full_vertices, full_adj, altruists = _augment_with_altruists(vertices, adj_out, limited_altruists, rng=rng)
-
-    # Enumerate cycles (with altruists) under Delta
-    cycle_db = enumerate_cycles(full_vertices, full_adj, partition, Delta, altruists)
-    cycles = [c for c in cycle_db.cycles if c.length <= Delta]
-
-    # Compute coalition bounds opt_S
+    # Coalition bounds remain valid regardless of altruists (only non-altruist cycles count).
     players = partition.players
     coalition_bounds: List[Tuple[Set[PlayerId], int]] = []
     for size in range(1, min(max_coal_size, len(players)) + 1):
         for coalition_tuple in combinations(players, size):
             S = set(coalition_tuple)
             opt_S = _compute_opt_for_coalition(
-                cycle_db, partition, S, Delta, solver, time_limit=time_limit, mip_gap=mip_gap
+                base_cycle_db,
+                partition,
+                S,
+                Delta,
+                solver,
+                time_limit=time_limit,
+                mip_gap=mip_gap,
             )
             coalition_bounds.append((S, opt_S))
 
-    # Main IP: Minimize altruist-edge incidence subject to coverage ≥ K and coalition cuts
-    problem = pulp.LpProblem("TUCoreSimple", pulp.LpMinimize)
-    y_vars = {c.id: pulp.LpVariable(f"x_{c.id}", lowBound=0, upBound=1, cat="Binary") for c in cycles}
+    # Prepare mutable graph copies and the pool of altruists that can be added.
+    working_adj = {u: list(neigh) for u, neigh in adj_out.items()}
+    current_vertices = list(vertices)
+    altruists: List[VertexId] = []
 
-    # Precompute objective parts per cycle
-    real_terms = []
-    altruist_pen_terms = []
-    for c in cycles:
-        real_count = c.non_altruist_count
-        alt_pen, _ = _altruist_incidence_stats(c, set(altruists))
-        real_terms.append(y_vars[c.id] * real_count)
-        altruist_pen_terms.append(y_vars[c.id] * alt_pen)
-    # Objective: minimize total altruist-edge incidence
-    problem += pulp.lpSum(altruist_pen_terms)
+    existing_ids = set(vertices) | set(adj_out.keys())
+    available_altruists = [
+        altruist for altruist in altruist_edges if altruist not in existing_ids
+    ]
+    rng.shuffle(available_altruists)
 
-    # Vertex disjointness for all vertices in the cycle DB (altruists included)
-    for vertex, cids in cycle_db.by_vertex.items():
-        relevant = [y_vars[cid] for cid in cids if cid in y_vars]
-        if relevant:
-            problem += pulp.lpSum(relevant) <= 1, f"disjoint_{vertex}"
+    def _build_and_solve(
+        cycle_db: CycleDB, altruist_set: Set[VertexId]
+    ) -> Tuple[pulp.LpProblem, int, Set[CycleId], Dict[CycleId, int], Dict[CycleId, int]]:
+        cycles = [c for c in cycle_db.cycles if c.length <= Delta]
+        problem = pulp.LpProblem("TUCoreSimpleIter", pulp.LpMinimize)
+        y_vars = {
+            c.id: pulp.LpVariable(f"x_{c.id}", lowBound=0, upBound=1, cat="Binary")
+            for c in cycles
+        }
 
-    # Coverage lower bound: meet at least baseline K real patients
-    if real_terms:
-        problem += pulp.lpSum(real_terms) >= int(K), "coverage_lower_bound"
-
-    # Coalition constraints: Σ_{c} x_c · (Σ_{i∈S} α_{c,i}) ≥ opt_S
-    for idx, (S, bound) in enumerate(coalition_bounds):
-        if bound <= 0:
-            continue
-        lhs_terms = []
+        real_counts: Dict[CycleId, int] = {}
+        penalty_counts: Dict[CycleId, int] = {}
+        real_terms = []
+        altruist_pen_terms = []
         for c in cycles:
-            weight = sum(c.player_counts.get(player, 0) for player in S)
-            if weight:
-                lhs_terms.append(y_vars[c.id] * weight)
-        if lhs_terms:
-            problem += pulp.lpSum(lhs_terms) >= int(bound), f"coalition_{idx}"
+            real_count = c.non_altruist_count
+            penalty, _ = _altruist_incidence_stats(c, altruist_set)
+            real_counts[c.id] = real_count
+            penalty_counts[c.id] = penalty
+            real_terms.append(y_vars[c.id] * real_count)
+            altruist_pen_terms.append(y_vars[c.id] * penalty)
+        problem += pulp.lpSum(altruist_pen_terms)
 
-    solver_instance = make_pulp_solver(solver, time_limit=time_limit, mip_gap=mip_gap)
-    problem.solve(solver_instance)
+        for vertex, cids in cycle_db.by_vertex.items():
+            relevant = [y_vars[cid] for cid in cids if cid in y_vars]
+            if relevant:
+                problem += pulp.lpSum(relevant) <= 1, f"disjoint_{vertex}"
 
-    status = problem.status
-    selected: Set[int] = set(cid for cid, var in y_vars.items() if var.value() is not None and var.value() > 0.5)
+        if real_terms and min_real_transplants > 0:
+            problem += pulp.lpSum(real_terms) >= int(min_real_transplants), "coverage_lower_bound"
 
-    if status not in (pulp.LpStatusOptimal, pulp.LpStatusNotSolved):
-        return {
-            "solution": selected,
+        for idx, (S, bound) in enumerate(coalition_bounds):
+            if bound <= 0:
+                continue
+            lhs_terms = []
+            for c in cycles:
+                weight = sum(c.player_counts.get(player, 0) for player in S)
+                if weight:
+                    lhs_terms.append(y_vars[c.id] * weight)
+            if lhs_terms:
+                problem += pulp.lpSum(lhs_terms) >= int(bound), f"coalition_{idx}"
+
+        solver_instance = make_pulp_solver(solver, time_limit=time_limit, mip_gap=mip_gap)
+        problem.solve(solver_instance)
+        status = problem.status
+        selected = {
+            cid for cid, var in y_vars.items() if var.value() is not None and var.value() > 0.5
+        }
+        return problem, status, selected, real_counts, penalty_counts
+
+    def _safe_value(expr) -> float:
+        raw = pulp.value(expr) if expr is not None else None
+        return float(raw) if raw is not None else 0.0
+
+    final_result: Optional[Dict[str, object]] = None
+    final_cycle_db: Optional[CycleDB] = None
+
+    while True:
+        altruist_set = set(altruists)
+        cycle_db = enumerate_cycles(current_vertices, working_adj, partition, Delta, altruists)
+        problem, status, selected, real_counts, penalty_counts = _build_and_solve(
+            cycle_db, altruist_set
+        )
+
+        feasible = status == pulp.LpStatusOptimal or (
+            status == pulp.LpStatusNotSolved and bool(selected)
+        )
+        if feasible:
+            player_utilities = compute_player_utilities(selected, cycle_db)
+            objective_value = int(round(_safe_value(problem.objective)))
+            objective_real_patients = sum(real_counts.get(cid, 0) for cid in selected)
+            objective_altruist_penalty = sum(penalty_counts.get(cid, 0) for cid in selected)
+
+
+            final_result = {
+                "solution": selected,
+                "in_core": True,
+                "player_utilities": player_utilities,
+                "objective_value": objective_value,
+                "objective_real_patients": objective_real_patients,
+                "objective_altruist_penalty": objective_altruist_penalty,
+                "num_coalitions": len(coalition_bounds),
+                "max_coal_size": max_coal_size,
+                "altruists_present": bool(altruists),
+                "M": len(set(current_vertices)),
+                "altruists_used": len(altruists),
+            }
+            final_cycle_db = cycle_db
+            break
+
+        if status == pulp.LpStatusInfeasible and available_altruists:
+            new_index = int(rng.integers(len(available_altruists)))
+            new_altruist = available_altruists.pop(new_index)
+            targets = [
+                t for t in altruist_edges.get(new_altruist, []) if t in current_vertices
+            ]
+            _add_altruist_vertex(
+                working_adj,
+                current_vertices,
+                new_altruist,
+                targets,
+                rng=rng,
+            )
+            altruists.append(new_altruist)
+            current_vertices.append(new_altruist)
+            continue
+
+        # Either infeasible with no altruists left or solver returned a fatal status.
+        final_result = {
+            "solution": set(),
             "in_core": False,
             "player_utilities": {},
             "objective_value": 0,
@@ -1505,38 +1582,10 @@ def core_tu_simple(
             "num_coalitions": len(coalition_bounds),
             "max_coal_size": max_coal_size,
             "altruists_present": bool(altruists),
-            "M": len(set(full_vertices)),
+            "M": len(set(current_vertices)),
             "altruists_used": 0,
         }
+        final_cycle_db = cycle_db
+        break
 
-    # Stats
-    player_utilities = compute_player_utilities(selected, cycle_db)
-
-    def _safe_value(expr) -> float:
-        raw = pulp.value(expr) if expr is not None else None
-        return float(raw) if raw is not None else 0.0
-
-    objective_value = int(round(_safe_value(problem.objective)))
-    objective_real_patients = int(round(_safe_value(pulp.lpSum(real_terms)))) if real_terms else 0
-    objective_altruist_penalty = int(round(_safe_value(pulp.lpSum(altruist_pen_terms)))) if altruist_pen_terms else 0
-
-    selected_altruists: Set[int] = set()
-    for cid in selected:
-        cyc = cycle_db.cycles[cid]
-        for v in cyc.vertices:
-            if v in altruists:
-                selected_altruists.add(v)
-
-    return {
-        "solution": selected,
-        "in_core": True if status in (pulp.LpStatusOptimal, pulp.LpStatusNotSolved) else False,
-        "player_utilities": player_utilities,
-        "objective_value": objective_value,
-        "objective_real_patients": objective_real_patients,
-        "objective_altruist_penalty": objective_altruist_penalty,
-        "num_coalitions": len(coalition_bounds),
-        "max_coal_size": max_coal_size,
-        "altruists_present": bool(altruists),
-        "M": len(set(full_vertices)),
-        "altruists_used": len(selected_altruists),
-    }
+    return final_result
