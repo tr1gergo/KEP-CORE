@@ -16,7 +16,12 @@ from KEP_functions import (
     separate_blocking_coalition,
     solve_lexicographic_cycle_cover,
 )
-from management_science_simulations import initial_stability_sample, make_donor_orders
+from paper_simulations import (
+    inconclusive_lexicographic_targets,
+    initial_stability_sample,
+    make_donor_orders,
+    paper_study_configs,
+)
 
 
 class ExactSeparationTests(unittest.TestCase):
@@ -324,6 +329,60 @@ class RandomizationTests(unittest.TestCase):
         self.assertEqual(lex["market_id"].nunique(), 2)
         challenged = lex[lex["market_id"].eq("challenged")].iloc[0]
         self.assertFalse(challenged["donor_free_stable"])
+
+
+class UnifiedPipelineTests(unittest.TestCase):
+    def test_frozen_pipeline_scopes_primary_and_supplementary_runs(self):
+        cap9, cap30 = paper_study_configs("results/test-work")
+        self.assertEqual(cap9.master_seed, 20260819)
+        self.assertEqual(cap9.max_coal_size, 9)
+        self.assertEqual(cap9.num_players, (5, 10, 20, 30))
+        self.assertEqual(cap9.primary_num_players, (5, 10))
+        self.assertEqual(cap30.master_seed, 20260819)
+        self.assertEqual(cap30.max_coal_size, 30)
+        self.assertEqual(cap30.num_players, (20, 30))
+
+    def test_retry_targets_are_derived_from_inconclusive_rows(self):
+        calls = pd.DataFrame(
+            [
+                {
+                    "analysis_role": "primary_full_core",
+                    "procedure": "lexicographic_rule",
+                    "stage": "initial_audit",
+                    "market_id": "unresolved",
+                    "certified": False,
+                    "in_core": False,
+                },
+                {
+                    "analysis_role": "primary_full_core",
+                    "procedure": "lexicographic_rule",
+                    "stage": "initial_audit",
+                    "market_id": "blocked",
+                    "certified": True,
+                    "in_core": False,
+                },
+                {
+                    "analysis_role": "primary_full_core",
+                    "procedure": "lexicographic_rule",
+                    "stage": "floor_stabilization",
+                    "market_id": "blocked",
+                    "certified": False,
+                    "in_core": False,
+                },
+                {
+                    "analysis_role": "primary_full_core",
+                    "procedure": "lexicographic_rule",
+                    "stage": "initial_audit",
+                    "market_id": "stable",
+                    "certified": True,
+                    "in_core": True,
+                },
+            ]
+        )
+        self.assertEqual(
+            inconclusive_lexicographic_targets(calls),
+            {"blocked": "floor_stabilization", "unresolved": "initial_audit"},
+        )
 
 
 if __name__ == "__main__":
