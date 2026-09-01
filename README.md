@@ -69,7 +69,9 @@ scientific result fields are invariant.
 
 Temporary reproduction checkpoints are written below
 `results/management_science_full_core/reproduction_work/` and are ignored by
-Git.
+Git. The `cap09` and `cap30` directories are committed with placeholder files
+so Windows/Jupyter does not need to create the nested directory tree before
+the first solver call.
 
 ## Environment and Jupyter kernel
 

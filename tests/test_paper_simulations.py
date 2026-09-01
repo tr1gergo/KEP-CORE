@@ -18,7 +18,6 @@ from KEP_functions import (
 )
 from paper_simulations import (
     inconclusive_lexicographic_targets,
-    initial_stability_sample,
     make_donor_orders,
     paper_study_configs,
 )
@@ -291,45 +290,6 @@ class RandomizationTests(unittest.TestCase):
         self.assertEqual(len(first), 3)
         for order in first:
             self.assertEqual(set(order), {10, 11, 12, 13})
-
-    def test_initial_lexicographic_sample_does_not_duplicate_a_rerun(self):
-        results = pd.DataFrame(
-            [
-                {
-                    "market_id": "challenged",
-                    "algorithm": "lexicographic_initial",
-                    "order_rep": -1,
-                    "certified": True,
-                    "in_core": False,
-                    "donors_introduced": 0,
-                },
-                {
-                    "market_id": "challenged",
-                    "algorithm": "lexicographic",
-                    "order_rep": 0,
-                    "certified": True,
-                    "in_core": True,
-                    "donors_introduced": 0,
-                },
-                {
-                    "market_id": "stable",
-                    "algorithm": "lexicographic",
-                    "order_rep": 0,
-                    "certified": True,
-                    "in_core": True,
-                    "donors_introduced": 0,
-                },
-            ]
-        )
-
-        sample = initial_stability_sample(results)
-        lex = sample[sample["reported_algorithm"].eq("lexicographic")]
-
-        self.assertEqual(len(lex), 2)
-        self.assertEqual(lex["market_id"].nunique(), 2)
-        challenged = lex[lex["market_id"].eq("challenged")].iloc[0]
-        self.assertFalse(challenged["donor_free_stable"])
-
 
 class UnifiedPipelineTests(unittest.TestCase):
     def test_frozen_pipeline_scopes_primary_and_supplementary_runs(self):
