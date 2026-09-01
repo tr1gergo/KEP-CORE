@@ -1,0 +1,4 @@
+pool_size,markets,certified_initial,initial_blocked,initial_block_rate,final_resolved,donor_assisted,donor_assisted_rate,successful_challenged,challenged_best_prefix_mean,challenged_best_prefix_median,challenged_best_prefix_max,assisted_best_prefix_mean,assisted_best_prefix_median,assisted_best_prefix_max
+100,480,480,22,0.04583333333333333,480,20,0.041666666666666664,22,0.9545454545454546,1.0,2.0,1.05,1.0,2.0
+200,480,480,3,0.00625,480,2,0.004166666666666667,3,0.6666666666666666,1.0,1.0,1.0,1.0,1.0
+500,480,480,46,0.09583333333333334,480,37,0.07708333333333334,46,0.8043478260869565,1.0,1.0,1.0,1.0,1.0

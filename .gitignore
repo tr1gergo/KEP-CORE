@@ -1,0 +1,13 @@
+*.py[cod]
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+.tmp_uv_cache/
+
+# Local environments and credentials
+.env
+.venv*/
+
+# Resumable intermediate checkpoints from a clean full reproduction.
+# The validated canonical results, paper tables, and figures are committed.
+results/management_science_full_core/reproduction_work/

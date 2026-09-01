@@ -1,3 +1,5 @@
+"""Parse and summarize the kidney-exchange XML instances used in the study."""
+
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
@@ -167,4 +169,3 @@ def summarize_instances(paths: Iterable[str | Path]) -> list[dict[str, Any]]:
         instance = load_instance(path)
         summaries.append(summarize_instance(instance))
     return summaries
-

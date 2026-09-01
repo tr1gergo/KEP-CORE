@@ -1,0 +1,224 @@
+{
+  "code": {
+    "KEP_functions.py": "e75807b0a59608dba34c5bfa5c049899293e85e3596565dcecc87edef0a9fc8d",
+    "management_science_simulations.py": "a9a6dea54aee4cc8d7a997010b850dca4e58da11276ee7af043180b7efe1a4a8"
+  },
+  "config": {
+    "deltas": [
+      2,
+      3
+    ],
+    "donor_order_reps": 3,
+    "instance_dir": "instances_large",
+    "instance_selection_seed": 20260819,
+    "master_seed": 20260819,
+    "max_cells": null,
+    "max_coal_size": 30,
+    "mip_gap": 0.0,
+    "num_base_instances": 30,
+    "num_players": [
+      20,
+      30
+    ],
+    "output_dir": "results\\management_science_maxcoal30_robustness",
+    "partition_reps": 2,
+    "partition_var_size": 1,
+    "pool_sizes": [
+      100,
+      200,
+      500
+    ],
+    "run_heuristic_diagnostics": true,
+    "solver": "GUROBI",
+    "solver_threads": 16,
+    "time_limit_seconds": 200
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 117 Stepping 2, AuthenticAMD",
+    "pulp": "3.3.2",
+    "python": "3.13.14"
+  },
+  "instances": [
+    {
+      "bytes": 7127894,
+      "filename": "genxml-0.xml",
+      "path": "instances_large/genxml-0.xml",
+      "sha256": "6b9072afd185042c30d8866743d14381f73da671c3e27ef16eb7aaa5e8227eea"
+    },
+    {
+      "bytes": 6315448,
+      "filename": "genxml-2.xml",
+      "path": "instances_large/genxml-2.xml",
+      "sha256": "f546c80f06ab449654a6722178cdddf90fc2113dc50e292d3558b7c33acacb73"
+    },
+    {
+      "bytes": 6926346,
+      "filename": "genxml-4.xml",
+      "path": "instances_large/genxml-4.xml",
+      "sha256": "92e613c24c9080142958bab8eb185e05c6233ba2b9c68898b171cc67954c1cd1"
+    },
+    {
+      "bytes": 6863625,
+      "filename": "genxml-11.xml",
+      "path": "instances_large/genxml-11.xml",
+      "sha256": "c4fff5dc463f1ce9f0985f2bda819b7afb059deca3698640f4ad46bd30160b59"
+    },
+    {
+      "bytes": 6080127,
+      "filename": "genxml-13.xml",
+      "path": "instances_large/genxml-13.xml",
+      "sha256": "ac0e3c344133a0809cebb69eb77f5ff29080599dfd707bbdbf5f17eef4e8956c"
+    },
+    {
+      "bytes": 6964396,
+      "filename": "genxml-23.xml",
+      "path": "instances_large/genxml-23.xml",
+      "sha256": "50554b018d0a948933885b518bb41131d2dcf407683d7cee4e58da390be9b12d"
+    },
+    {
+      "bytes": 6849396,
+      "filename": "genxml-24.xml",
+      "path": "instances_large/genxml-24.xml",
+      "sha256": "e192a03a097bdc4bb72745de9bf8811d9f617c615000b7ebfb6193edaedb76e6"
+    },
+    {
+      "bytes": 6266944,
+      "filename": "genxml-25.xml",
+      "path": "instances_large/genxml-25.xml",
+      "sha256": "c54dcce28762bf451cf09849ec07f5ebdf49ee08d229d4de75a1389fb923c395"
+    },
+    {
+      "bytes": 6695090,
+      "filename": "genxml-27.xml",
+      "path": "instances_large/genxml-27.xml",
+      "sha256": "ddc2ea6475951cbac3947a2a2daf648de25e49f70d973ba573beafc45dd3622a"
+    },
+    {
+      "bytes": 6614060,
+      "filename": "genxml-36.xml",
+      "path": "instances_large/genxml-36.xml",
+      "sha256": "83dea482b47042c19ffd0c8b31afb5a632d68b9eed8d08df0dc6d918e1ba4776"
+    },
+    {
+      "bytes": 6508797,
+      "filename": "genxml-37.xml",
+      "path": "instances_large/genxml-37.xml",
+      "sha256": "9dbece7ba7ec236a26824c6846adb9dfada7237ab29a8ee8d06bac40fd65fd51"
+    },
+    {
+      "bytes": 6275713,
+      "filename": "genxml-39.xml",
+      "path": "instances_large/genxml-39.xml",
+      "sha256": "65c81367a099dfc2c9b433c0d5a572e318a5d7b306aaf4b2eb45c5c7d9217867"
+    },
+    {
+      "bytes": 6353176,
+      "filename": "genxml-46.xml",
+      "path": "instances_large/genxml-46.xml",
+      "sha256": "ec7bae5ff96866e2ac15e0fcdb0205d1888f19ff4866151dba814824cb587ba4"
+    },
+    {
+      "bytes": 6692354,
+      "filename": "genxml-48.xml",
+      "path": "instances_large/genxml-48.xml",
+      "sha256": "07fe02525155fdcfcfaa3361197faa31ee59e409976c91900262dc680e12f4a8"
+    },
+    {
+      "bytes": 6562433,
+      "filename": "genxml-57.xml",
+      "path": "instances_large/genxml-57.xml",
+      "sha256": "48798bc6bc8e8f8be35b999fa4426a1b5abd4d88c6ce07de4c262a854bdc1557"
+    },
+    {
+      "bytes": 6764364,
+      "filename": "genxml-58.xml",
+      "path": "instances_large/genxml-58.xml",
+      "sha256": "d03e9a81b0d54b5c7354f667830aa6cc410723004feecb134edfa98b65a98e02"
+    },
+    {
+      "bytes": 6610682,
+      "filename": "genxml-60.xml",
+      "path": "instances_large/genxml-60.xml",
+      "sha256": "aba3cc71ec1f129dd3db2e3ae6c98694ad2383846f60829114fae3053a8d4d57"
+    },
+    {
+      "bytes": 6421964,
+      "filename": "genxml-65.xml",
+      "path": "instances_large/genxml-65.xml",
+      "sha256": "171c61a3e879157131de68686e6e2c869cd6a7709b0176b201cd87ed4c09cb06"
+    },
+    {
+      "bytes": 6861123,
+      "filename": "genxml-68.xml",
+      "path": "instances_large/genxml-68.xml",
+      "sha256": "10f1a80c43a915fd5ee8b486b5bba757f550cf26de72ba49e2a785c197616b58"
+    },
+    {
+      "bytes": 7018172,
+      "filename": "genxml-70.xml",
+      "path": "instances_large/genxml-70.xml",
+      "sha256": "adad3c6118df61951613f8c550dba5297930da5eaef5a97cb3987cddb86115e0"
+    },
+    {
+      "bytes": 6886038,
+      "filename": "genxml-71.xml",
+      "path": "instances_large/genxml-71.xml",
+      "sha256": "a6203a42a71d96303157b09d9ab6a2821e3f10078ad16b6d9f3cc0ac6f69c33f"
+    },
+    {
+      "bytes": 6418475,
+      "filename": "genxml-80.xml",
+      "path": "instances_large/genxml-80.xml",
+      "sha256": "4aaf19c39c03a7e6cdde048912e6d9fe34dd998d2f679ff2456caac9e768f329"
+    },
+    {
+      "bytes": 6440411,
+      "filename": "genxml-83.xml",
+      "path": "instances_large/genxml-83.xml",
+      "sha256": "2eb49f20b6dcf65eeda5f66c86ebf854efd5a078cee10ed9857620a294dbf62c"
+    },
+    {
+      "bytes": 6691095,
+      "filename": "genxml-84.xml",
+      "path": "instances_large/genxml-84.xml",
+      "sha256": "7ca0bb0d160e9dda97e91c97a161f8b272dab64ab0c715bf5a9e28561abc9a18"
+    },
+    {
+      "bytes": 6760699,
+      "filename": "genxml-88.xml",
+      "path": "instances_large/genxml-88.xml",
+      "sha256": "aaa5e1816e8e884f7fc6e3918d86d9ac5d1c31725b284afe8bfe654069840e83"
+    },
+    {
+      "bytes": 6514651,
+      "filename": "genxml-89.xml",
+      "path": "instances_large/genxml-89.xml",
+      "sha256": "228d4e69a20a53756060057ce00ffc7be3f38952abd0230dad3a978ec33d34b9"
+    },
+    {
+      "bytes": 6559575,
+      "filename": "genxml-91.xml",
+      "path": "instances_large/genxml-91.xml",
+      "sha256": "74fd83aafac56576294828dcf56f86d22c326f882d1c4e7a7004ff1574c6257f"
+    },
+    {
+      "bytes": 6514267,
+      "filename": "genxml-92.xml",
+      "path": "instances_large/genxml-92.xml",
+      "sha256": "60ab168baab805d736412b1835eec2b0ab37b444cca25a643f73d7c5976ca491"
+    },
+    {
+      "bytes": 6447743,
+      "filename": "genxml-93.xml",
+      "path": "instances_large/genxml-93.xml",
+      "sha256": "5988d6e6ceb158f917ab90928785082c4a3dfda76dec0df832deba640ca8a253"
+    },
+    {
+      "bytes": 6457659,
+      "filename": "genxml-94.xml",
+      "path": "instances_large/genxml-94.xml",
+      "sha256": "9a816ca9cb2a1cc3603faaaaa93a8133bfd3df9be51763c575fe6d25beef6ecf"
+    }
+  ]
+}

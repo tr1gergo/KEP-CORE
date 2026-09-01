@@ -1,0 +1,7 @@
+gurobipy==13.0.2
+ipykernel==7.3.0
+ipython==9.16.1
+matplotlib==3.11.1
+numpy==2.5.2
+pandas==3.0.5
+PuLP==3.3.2

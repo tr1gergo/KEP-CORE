@@ -1,0 +1,21 @@
+{
+  "bootstrap_repetitions": 20000,
+  "bootstrap_seed": 20260826,
+  "canonical_file": "results/management_science_full_core/results.jsonl",
+  "canonical_sha256": "f52c68498b99673921861e9ef16e1e5a925535fc0daa70bfd429c046203d6325",
+  "schema_version": "management_science_full_core_v1",
+  "tables": [
+    "market_outcomes.csv",
+    "primary_outcomes_by_organizations.csv",
+    "parameter_summary_clustered_ci.csv",
+    "lexicographic_cell_effects.csv",
+    "pool_size_summary.csv",
+    "lexicographic_donor_orders.csv",
+    "lexicographic_order_sensitivity.csv",
+    "base_instance_summary.csv",
+    "partition_discordance.csv",
+    "pool_size_correlation.csv",
+    "supplementary_tu_strong.csv",
+    "runtime_summary.csv"
+  ]
+}

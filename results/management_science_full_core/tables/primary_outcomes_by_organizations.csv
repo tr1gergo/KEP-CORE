@@ -1,0 +1,5 @@
+num_players,weak_donor_free,weak_assisted,weak_unresolved,lex_initial_stable,lex_initial_blocked,lex_initial_unresolved,lex_final_donor_free,lex_final_assisted,lex_final_unresolved
+5,360,0,0,344,16,0,346,14,0
+10,360,0,0,332,28,0,336,24,0
+20,360,0,0,346,14,0,350,10,0
+30,359,1,0,347,13,0,349,11,0

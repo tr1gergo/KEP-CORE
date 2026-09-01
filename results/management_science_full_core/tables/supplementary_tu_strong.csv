@@ -1,0 +1,9 @@
+procedure,num_players,donor_free,assisted,unresolved,best_introduced_mean,best_introduced_median,best_introduced_max,market_rows_found
+tu_core,5,357,1,2,1.0,1.0,1,360
+tu_core,10,320,37,3,1.135135135135135,1.0,4,360
+tu_core,20,285,71,4,1.6619718309859155,1.0,4,360
+tu_core,30,245,115,0,2.608695652173913,2.0,7,360
+strong_core,5,359,1,0,1.0,1.0,1,360
+strong_core,10,340,20,0,1.0,1.0,1,360
+strong_core,20,305,55,0,1.4727272727272727,1.0,4,360
+strong_core,30,253,107,0,2.308411214953271,2.0,7,360
