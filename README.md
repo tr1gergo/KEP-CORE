@@ -67,11 +67,12 @@ scientific result fields are invariant.
 - `figures/full_core_simulations/` — final paper figures.
 - `tests/test_paper_simulations.py` — regression tests.
 
-Temporary reproduction checkpoints are written below
-`results/management_science_full_core/reproduction_work/` and are ignored by
-Git. The `cap09` and `cap30` directories are committed with placeholder files
-so Windows/Jupyter does not need to create the nested directory tree before
-the first solver call.
+Resumable intermediate checkpoints are written to
+`%TEMP%\KEP-CORE\reproduction_work`. This location is used because restricted
+Windows/Jupyter kernels may be allowed to update tracked repository artifacts
+but denied permission to create new checkpoint files inside the repository.
+The consolidated JSON, tables, and figures are still written to the documented
+project directories.
 
 ## Environment and Jupyter kernel
 

@@ -10,10 +10,4 @@ __pycache__/
 
 # Resumable intermediate checkpoints from a clean full reproduction.
 # The validated canonical results, paper tables, and figures are committed.
-results/management_science_full_core/reproduction_work/*
-!results/management_science_full_core/reproduction_work/cap09/
-!results/management_science_full_core/reproduction_work/cap30/
-results/management_science_full_core/reproduction_work/cap09/*
-results/management_science_full_core/reproduction_work/cap30/*
-!results/management_science_full_core/reproduction_work/cap09/.gitkeep
-!results/management_science_full_core/reproduction_work/cap30/.gitkeep
+results/management_science_full_core/reproduction_work/

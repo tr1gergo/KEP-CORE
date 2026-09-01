@@ -1,4 +1,6 @@
 import unittest
+import tempfile
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -301,6 +303,11 @@ class UnifiedPipelineTests(unittest.TestCase):
         self.assertEqual(cap30.master_seed, 20260819)
         self.assertEqual(cap30.max_coal_size, 30)
         self.assertEqual(cap30.num_players, (20, 30))
+
+        default_cap9, default_cap30 = paper_study_configs()
+        temporary_root = Path(tempfile.gettempdir()).resolve()
+        self.assertTrue(Path(default_cap9.output_dir).resolve().is_relative_to(temporary_root))
+        self.assertTrue(Path(default_cap30.output_dir).resolve().is_relative_to(temporary_root))
 
     def test_retry_targets_are_derived_from_inconclusive_rows(self):
         calls = pd.DataFrame(

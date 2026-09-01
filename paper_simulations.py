@@ -25,6 +25,7 @@ import math
 import platform
 from pathlib import Path
 import re
+import tempfile
 from time import perf_counter
 from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Sequence, Tuple
 
@@ -54,10 +55,13 @@ from KEP_functions import (
 )
 
 
+DEFAULT_WORK_DIR = Path(tempfile.gettempdir()) / "KEP-CORE" / "reproduction_work"
+
+
 @dataclass(frozen=True)
 class StudyConfig:
     instance_dir: str = "instances_large"
-    output_dir: str = "results/management_science_full_core/reproduction_work/cap09"
+    output_dir: str = str(DEFAULT_WORK_DIR / "cap09")
     num_base_instances: int = 30
     instance_selection_seed: int = 20260819
     master_seed: int = 20260819
@@ -1516,7 +1520,7 @@ def validate_lexicographic_floor_results(
 # Full weak-core and lexicographic stage
 # ---------------------------------------------------------------------------
 
-OUTPUT_DIR = Path("results/management_science_full_core/reproduction_work/cap30")
+OUTPUT_DIR = DEFAULT_WORK_DIR / "cap30"
 RAW_NAME = "raw_results.jsonl"
 CSV_NAME = "raw_results.csv"
 PROTOCOL_NAME = "robustness_protocol.json"
@@ -2214,10 +2218,10 @@ def validate_cap30_results(config: StudyConfig | None = None) -> dict[str, objec
 SCHEMA_VERSION = "management_science_full_core_v1"
 MASTER_SEED = 20260819
 SOURCE_CAP9 = Path(
-    "results/management_science_full_core/reproduction_work/cap09/raw_results.jsonl"
+    DEFAULT_WORK_DIR / "cap09" / "raw_results.jsonl"
 )
 SOURCE_CAP30 = Path(
-    "results/management_science_full_core/reproduction_work/cap30/raw_results.jsonl"
+    DEFAULT_WORK_DIR / "cap30" / "raw_results.jsonl"
 )
 CANONICAL_PATH = Path("results/management_science_full_core/results.jsonl")
 FIGURE_DIR = Path("figures/full_core_simulations")
@@ -3930,10 +3934,10 @@ def build_all_from_completed_results(
 
 
 def paper_study_configs(
-    work_dir: str | Path = "results/management_science_full_core/reproduction_work",
+    work_dir: str | Path | None = None,
 ) -> tuple[StudyConfig, StudyConfig]:
     """Build the two resumable configurations used by the paper notebook."""
-    work_dir = Path(work_dir)
+    work_dir = DEFAULT_WORK_DIR if work_dir is None else Path(work_dir)
     common = dict(
         instance_dir="instances_large",
         num_base_instances=30,
@@ -3965,7 +3969,7 @@ def paper_study_configs(
 def run_complete_paper_study(
     *,
     run_optimizations: bool = False,
-    work_dir: str | Path = "results/management_science_full_core/reproduction_work",
+    work_dir: str | Path | None = None,
     canonical_path: str | Path = CANONICAL_PATH,
     retry_time_limit_seconds: int = 1_200,
     retry_solver_threads: int = 8,
@@ -3979,7 +3983,7 @@ def run_complete_paper_study(
     lexicographic markets enter the final long-limit pass.  Every stage is
     append-only and safely resumes its own checkpoint.
     """
-    work_dir = Path(work_dir)
+    work_dir = DEFAULT_WORK_DIR if work_dir is None else Path(work_dir)
     canonical_path = Path(canonical_path)
     retry_path = work_dir / "retry_checkpoint.jsonl"
     validate_frozen_instances()
